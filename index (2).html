@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Analytical Projects — Data Analytics Portfolio. Python, predictive modeling, and trade analytics."/>
+  <title>Analytical Projects | Data Analytics Portfolio</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Epilogue:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:       #f5f3ee;
+      --ink:      #1a1a18;
+      --mid:      #6b6b60;
+      --gold:     #b8860b;
+      --gold-lt:  #e8c84a;
+      --card:     #ffffff;
+      --border:   #e0ddd5;
+      --tag-bg:   #eef2f7;
+      --tag-fg:   #2c5282;
+      --blue:     #2b6cb0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Epilogue', sans-serif;
+      font-weight: 400;
+      line-height: 1.65;
+    }
+
+    /* ── nav ── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(245,243,238,0.92);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 2rem;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .nav-brand {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      color: var(--ink);
+      text-decoration: none;
+      letter-spacing: -.01em;
+    }
+
+    .nav-brand span { color: var(--gold); }
+
+    .nav-links {
+      display: flex;
+      gap: 1.8rem;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: .82rem;
+      color: var(--mid);
+      text-decoration: none;
+      font-weight: 500;
+      letter-spacing: .03em;
+      transition: color .2s;
+    }
+
+    .nav-links a:hover { color: var(--ink); }
+
+    /* ── hero ── */
+    .hero {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem 4rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 2rem;
+      align-items: end;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .hero-eyebrow {
+      font-family: 'Syne', sans-serif;
+      font-size: .7rem;
+      font-weight: 600;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: .9rem;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: clamp(2.8rem, 7vw, 4.5rem);
+      font-weight: 800;
+      line-height: 1.0;
+      letter-spacing: -.03em;
+      color: var(--ink);
+      margin-bottom: 1.4rem;
+    }
+
+    .hero h1 em {
+      font-style: normal;
+      color: var(--gold);
+      position: relative;
+    }
+
+    .hero-desc {
+      font-size: 1.05rem;
+      color: var(--mid);
+      max-width: 480px;
+      margin-bottom: 2rem;
+      font-weight: 300;
+    }
+
+    .skill-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+
+    .pill {
+      font-size: .72rem;
+      font-weight: 500;
+      padding: .3rem .85rem;
+      border: 1.5px solid var(--border);
+      border-radius: 100px;
+      color: var(--mid);
+      background: var(--card);
+      letter-spacing: .02em;
+    }
+
+    .hero-stat {
+      text-align: right;
+    }
+
+    .hero-stat .num {
+      font-family: 'Syne', sans-serif;
+      font-size: 3.5rem;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1;
+    }
+
+    .hero-stat .label {
+      font-size: .75rem;
+      color: var(--mid);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    /* ── main content ── */
+    main {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 3rem 0 1.5rem;
+    }
+
+    .section-header h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: .7rem;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--gold);
+    }
+
+    .section-header::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    /* ── project cards ── */
+    .project-grid {
+      display: grid;
+      gap: 1.2rem;
+    }
+
+    .project-card {
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: 2rem 2.2rem;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1.5rem;
+      align-items: start;
+      transition: border-color .2s, box-shadow .2s, transform .2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .project-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--gold), var(--gold-lt));
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform .3s ease;
+    }
+
+    .project-card:hover {
+      border-color: #c8c4b8;
+      box-shadow: 0 8px 32px rgba(0,0,0,.08);
+      transform: translateY(-2px);
+    }
+
+    .project-card:hover::before { transform: scaleX(1); }
+
+    .card-number {
+      font-family: 'Syne', sans-serif;
+      font-size: .7rem;
+      font-weight: 700;
+      color: var(--border);
+      letter-spacing: .1em;
+      margin-bottom: .6rem;
+    }
+
+    .card-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--ink);
+      letter-spacing: -.01em;
+      margin-bottom: .7rem;
+      line-height: 1.25;
+    }
+
+    .card-desc {
+      font-size: .92rem;
+      color: var(--mid);
+      font-weight: 300;
+      margin-bottom: 1.2rem;
+      line-height: 1.65;
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .4rem;
+    }
+
+    .tag {
+      font-size: .68rem;
+      font-weight: 500;
+      padding: .22rem .65rem;
+      background: var(--tag-bg);
+      color: var(--tag-fg);
+      border-radius: 4px;
+      letter-spacing: .02em;
+    }
+
+    .card-action {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: .6rem;
+      min-width: 130px;
+    }
+
+    .btn-notebook {
+      display: inline-flex;
+      align-items: center;
+      gap: .4rem;
+      font-family: 'Syne', sans-serif;
+      font-size: .75rem;
+      font-weight: 600;
+      padding: .55rem 1.1rem;
+      background: var(--ink);
+      color: #fff;
+      text-decoration: none;
+      border-radius: 6px;
+      letter-spacing: .02em;
+      transition: background .2s, transform .15s;
+      white-space: nowrap;
+    }
+
+    .btn-notebook:hover {
+      background: var(--gold);
+      color: var(--ink);
+      transform: scale(1.03);
+    }
+
+    .btn-notebook svg {
+      width: 13px; height: 13px;
+      fill: currentColor;
+      flex-shrink: 0;
+    }
+
+    .card-highlight {
+      font-size: .72rem;
+      color: var(--mid);
+      text-align: right;
+      line-height: 1.4;
+    }
+
+    .card-highlight strong {
+      display: block;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--gold);
+    }
+
+    /* ── about strip ── */
+    .about-strip {
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--card);
+      padding: 2rem 2.2rem;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1.5rem;
+      margin-top: 0;
+    }
+
+    .about-item h3 {
+      font-family: 'Syne', sans-serif;
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: .5rem;
+    }
+
+    .about-item p {
+      font-size: .88rem;
+      color: var(--mid);
+      font-weight: 300;
+    }
+
+    /* ── contact ── */
+    .contact-block {
+      margin-top: 1.2rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      background: var(--ink);
+      padding: 2.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .contact-block h2 {
+      font-family: 'Syne', sans-serif;
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -.02em;
+      margin-bottom: .3rem;
+    }
+
+    .contact-block p {
+      font-size: .88rem;
+      color: rgba(255,255,255,.5);
+    }
+
+    .contact-btns {
+      display: flex;
+      gap: .8rem;
+      flex-wrap: wrap;
+    }
+
+    .contact-btn {
+      font-family: 'Syne', sans-serif;
+      font-size: .78rem;
+      font-weight: 600;
+      padding: .6rem 1.3rem;
+      border-radius: 6px;
+      text-decoration: none;
+      letter-spacing: .02em;
+      transition: all .2s;
+    }
+
+    .contact-btn.gold {
+      background: var(--gold-lt);
+      color: var(--ink);
+    }
+
+    .contact-btn.gold:hover { background: #f0d44a; }
+
+    .contact-btn.ghost {
+      border: 1.5px solid rgba(255,255,255,.2);
+      color: rgba(255,255,255,.7);
+    }
+
+    .contact-btn.ghost:hover {
+      border-color: rgba(255,255,255,.6);
+      color: #fff;
+    }
+
+    /* ── footer ── */
+    footer {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 1.5rem 2rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: .5rem;
+    }
+
+    footer p {
+      font-size: .75rem;
+      color: var(--border);
+      font-weight: 400;
+    }
+
+    /* ── animations ── */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: fadeUp .55s ease forwards;
+    }
+
+    .fade-in:nth-child(1) { animation-delay: .05s; }
+    .fade-in:nth-child(2) { animation-delay: .15s; }
+    .fade-in:nth-child(3) { animation-delay: .25s; }
+    .fade-in:nth-child(4) { animation-delay: .35s; }
+
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── responsive ── */
+    @media (max-width: 640px) {
+      .hero {
+        grid-template-columns: 1fr;
+        padding: 3rem 1.5rem 2.5rem;
+      }
+      .hero-stat { text-align: left; }
+      .project-card { grid-template-columns: 1fr; }
+      .card-action { flex-direction: row; align-items: center; }
+      .card-highlight { text-align: left; }
+      .about-strip { grid-template-columns: 1fr; }
+      .contact-block { flex-direction: column; }
+      nav { padding: 0 1.5rem; }
+      .nav-links { display: none; }
+      main, footer { padding-left: 1.5rem; padding-right: 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-brand" href="#">Analytical<span>.</span>Projects</a>
+    <ul class="nav-links">
+      <li><a href="#projects">Projects</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero fade-in">
+    <div>
+      <p class="hero-eyebrow">Data Analytics Portfolio</p>
+      <h1>Turning data<br/>into <em>insight.</em></h1>
+      <p class="hero-desc">
+        Hands-on analytics work in Python — merging real-world datasets,
+        building predictive models, and surfacing decisions from numbers.
+      </p>
+      <div class="skill-pills">
+        <span class="pill">Python</span>
+        <span class="pill">pandas</span>
+        <span class="pill">Linear Regression</span>
+        <span class="pill">CSV / JSON</span>
+        <span class="pill">Google Colab</span>
+        <span class="pill">Trade Analytics</span>
+        <span class="pill">Predictive Modeling</span>
+      </div>
+    </div>
+    <div class="hero-stat">
+      <div class="num">3</div>
+      <div class="label">Projects<br/>Completed</div>
+    </div>
+  </section>
+
+  <!-- MAIN -->
+  <main>
+
+    <!-- PROJECTS -->
+    <div class="section-header" id="projects">
+      <h2>Projects</h2>
+    </div>
+
+    <div class="project-grid">
+
+      <!-- Card 1 -->
+      <div class="project-card fade-in">
+        <div>
+          <div class="card-number">01 — TRADE ANALYTICS</div>
+          <h3 class="card-title">Global Tariff Analysis</h3>
+          <p class="card-desc">
+            Analyzed import tariffs across 100 countries and six product categories —
+            electronics, clothing, automobiles, furniture, toys, and pharmaceuticals.
+            Merged CSV and JSON datasets using country codes as a foreign key, then
+            identified the highest-tariff countries in both developed and developing
+            economies for every category.
+          </p>
+          <div class="card-tags">
+            <span class="tag">Python</span>
+            <span class="tag">CSV</span>
+            <span class="tag">JSON</span>
+            <span class="tag">Data Merging</span>
+            <span class="tag">Trade Policy</span>
+            <span class="tag">Dictionaries & Loops</span>
+          </div>
+        </div>
+        <div class="card-action">
+          <a class="btn-notebook"
+             href="https://colab.research.google.com/drive/1kY3EmUkDb76c7Ql3RT9bMLDbo7sE_BkW"
+             target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16"><path d="M2 2h12v12H2V2zm1 1v10h10V3H3zm2 2h6v1H5V5zm0 2h6v1H5V7zm0 2h4v1H5V9z"/></svg>
+            View Notebook
+          </a>
+          <div class="card-highlight">
+            <strong>100</strong>
+            countries analyzed
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 2 -->
+      <div class="project-card fade-in">
+        <div>
+          <div class="card-number">02 — PREDICTIVE MODELING</div>
+          <h3 class="card-title">Employment &amp; Poverty Predictive Model</h3>
+          <p class="card-desc">
+            Built Linear Regression models to predict county-level employment rates
+            and household income for populations under 185% of the poverty line
+            across the United States. Merged three datasets covering disability
+            prevalence, SSI recipients, school funding, and demographics — then
+            saved both models for live scoring on new data.
+          </p>
+          <div class="card-tags">
+            <span class="tag">Python</span>
+            <span class="tag">pandas</span>
+            <span class="tag">Linear Regression</span>
+            <span class="tag">scikit-learn</span>
+            <span class="tag">Model Persistence</span>
+            <span class="tag">Social Policy</span>
+          </div>
+        </div>
+        <div class="card-action">
+          <a class="btn-notebook"
+             href="https://colab.research.google.com/drive/1EQ2H4jC4izjCelvT_RkG4nsogH6RQ6IW"
+             target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16"><path d="M2 2h12v12H2V2zm1 1v10h10V3H3zm2 2h6v1H5V5zm0 2h6v1H5V7zm0 2h4v1H5V9z"/></svg>
+            View Notebook
+          </a>
+          <div class="card-highlight">
+            <strong>R²&nbsp;0.88</strong>
+            employment model
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 3 -->
+      <div class="project-card fade-in">
+        <div>
+          <div class="card-number">03 — ACCESSIBILITY ANALYTICS</div>
+          <h3 class="card-title">Blindness & Braille Usage Analysis</h3>
+          <p class="card-desc">
+            Analyzed a dataset of visually impaired individuals across multiple countries,
+            examining Braille proficiency, assistive technology usage, daily reading habits,
+            and employment status. Filtered and segmented data to distinguish retired vs.
+            non-retired unemployed individuals and explored patterns in congenital vs.
+            acquired blindness across age groups and occupations.
+          </p>
+          <div class="card-tags">
+            <span class="tag">Python</span>
+            <span class="tag">pandas</span>
+            <span class="tag">Data Filtering</span>
+            <span class="tag">Accessibility</span>
+            <span class="tag">Social Analysis</span>
+          </div>
+        </div>
+        <div class="card-action">
+          <a class="btn-notebook"
+             href="https://colab.research.google.com/drive/1GfjTqafbDwIeRTVfCnaPeAhr3t_E9Y-8"
+             target="_blank" rel="noopener">
+            <svg viewBox="0 0 16 16"><path d="M2 2h12v12H2V2zm1 1v10h10V3H3zm2 2h6v1H5V5zm0 2h6v1H5V7zm0 2h4v1H5V9z"/></svg>
+            View Notebook
+          </a>
+          <div class="card-highlight">
+            <strong>233</strong>
+            individuals analyzed
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ABOUT -->
+    <div class="section-header" id="about">
+      <h2>About</h2>
+    </div>
+
+    <div class="about-strip fade-in">
+      <div class="about-item">
+        <h3>Focus</h3>
+        <p>Data wrangling, predictive modeling, and business analytics using Python and real-world datasets.</p>
+      </div>
+      <div class="about-item">
+        <h3>Tools</h3>
+        <p>Python, pandas, scikit-learn, CSV/JSON file handling, Google Colab, reportlab.</p>
+      </div>
+      <div class="about-item">
+        <h3>Goal</h3>
+        <p>Internship or entry-level analyst role where data drives real decisions.</p>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="section-header" id="contact">
+      <h2>Contact</h2>
+    </div>
+
+    <div class="contact-block fade-in">
+      <div>
+        <h2>Let's connect.</h2>
+        <p>Open to internships, collaborations, and feedback.</p>
+      </div>
+      <div class="contact-btns">
+        <a class="contact-btn gold" href="mailto:connor.lewis@student.fairfield.edu">Email Me</a>
+        <a class="contact-btn ghost" href="tel:5168155916">(516) 815-5916</a>
+        <a class="contact-btn ghost" href="https://github.com/yourusername" target="_blank">GitHub</a>
+        <a class="contact-btn ghost" href="https://linkedin.com/in/yourprofile" target="_blank">LinkedIn</a>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <p>© 2026 Analytical Projects</p>
+    <p>Built with HTML — no frameworks</p>
+  </footer>
+
+</body>
+</html>
