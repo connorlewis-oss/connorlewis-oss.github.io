@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Connor Lewis · Data Analyst</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#06080F;--s1:#0D1117;--s2:#141B27;--s3:#1B2438;--s4:#222E45;
+  --b1:rgba(255,255,255,0.05);--b2:rgba(255,255,255,0.10);--b3:rgba(255,255,255,0.18);
+  --g:#00FFB2;--gd:rgba(0,255,178,0.10);--g2:rgba(0,255,178,0.04);
+  --bl:#3B9EFF;--bld:rgba(59,158,255,0.12);
+  --am:#FFB347;--amd:rgba(255,179,71,0.12);
+  --rd:#FF4D6D;--rdd:rgba(255,77,109,0.12);
+  --pu:#A78BFA;--pud:rgba(167,139,250,0.12);
+  --t1:#F0F4FF;--t2:#8892A4;--t3:#3D4F6A;
+  --mono:'Space Mono',monospace;--sans:'Instrument Sans',sans-serif;
+  --r:8px;--rl:14px;--rxl:20px;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--t1);min-height:100vh;overflow-x:hidden;cursor:default}
+
+/* SCANLINE EFFECT */
+body::after{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.03) 2px,rgba(0,0,0,0.03) 4px);pointer-events:none;z-index:9999}
+
+/* LAYOUT */
+.shell{display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:200px;flex-shrink:0;background:var(--s1);border-right:1px solid var(--b1);display:flex;flex-direction:column;position:sticky;top:0;height:100vh;overflow:hidden}
+.sb-glow{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,178,0.04) 0%,transparent 70%);top:-80px;left:-80px;pointer-events:none}
+.sb-top{padding:24px 18px 20px;border-bottom:1px solid var(--b1);position:relative}
+.sb-id{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--g);letter-spacing:0.06em}
+.sb-name{font-size:15px;font-weight:600;color:var(--t1);margin-top:3px;letter-spacing:-0.02em}
+.sb-role{font-size:10px;color:var(--t3);margin-top:2px;letter-spacing:0.06em;text-transform:uppercase}
+.sb-nav{padding:14px 8px;flex:1;overflow-y:auto}
+.sb-sec{font-size:8px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--t3);margin:12px 10px 6px}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:6px;cursor:pointer;font-size:12px;color:var(--t2);transition:all 0.15s;margin-bottom:1px;position:relative}
+.ni:hover{background:var(--s2);color:var(--t1)}
+.ni.on{background:var(--gd);color:var(--g)}
+.ni.on::before{content:'';position:absolute;left:0;top:25%;bottom:25%;width:2px;background:var(--g);border-radius:2px}
+.ni-dot{width:5px;height:5px;border-radius:50%;background:var(--t3);flex-shrink:0;transition:background 0.15s}
+.ni.on .ni-dot{background:var(--g)}
+.sb-bot{padding:14px 18px;border-top:1px solid var(--b1)}
+.live-pill{display:inline-flex;align-items:center;gap:6px;background:var(--gd);border:1px solid rgba(0,255,178,0.18);border-radius:20px;padding:4px 10px;font-size:10px;color:var(--g);font-family:var(--mono)}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--g);animation:blink 1.4s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.2}}
+
+/* TOPBAR */
+.topbar{background:var(--s1);border-bottom:1px solid var(--b1);padding:0 28px;height:52px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.tb-l{display:flex;align-items:center;gap:14px}
+.tb-logo{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--g);letter-spacing:0.04em}
+.tb-bc{font-size:11px;color:var(--t3);font-family:var(--mono)}
+.tb-r{display:flex;align-items:center;gap:10px}
+.tb-tag{font-family:var(--mono);font-size:10px;color:var(--t2)}
+.tb-tag strong{color:var(--g)}
+.hire-btn{padding:6px 16px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:1px solid var(--g);background:var(--gd);color:var(--g);font-family:var(--mono);letter-spacing:0.04em;transition:all 0.15s;text-decoration:none}
+.hire-btn:hover{background:var(--g);color:var(--bg)}
+
+/* MAIN */
+.main{flex:1;overflow-x:hidden}
+.content{padding:28px 30px}
+.sec{display:none}
+.sec.on{display:block;animation:up 0.3s ease}
+@keyframes up{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* SECTION HEADS */
+.sh{margin-bottom:24px}
+.sh-label{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--g);margin-bottom:6px}
+.sh h2{font-family:var(--sans);font-size:22px;font-weight:600;color:var(--t1);letter-spacing:-0.03em;margin-bottom:4px}
+.sh h2 em{font-style:normal;color:var(--g)}
+.sh p{font-size:13px;color:var(--t3);line-height:1.6}
+
+/* CARDS */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);padding:20px;transition:border-color 0.2s}
+.card:hover{border-color:var(--b2)}
+.card-title{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:0.08em;color:var(--t1);margin-bottom:3px}
+.card-sub{font-size:10px;color:var(--t3);margin-bottom:0}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:14px}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:14px}
+.g65{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:14px}
+.cw{position:relative;width:100%}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:2px 8px;border-radius:20px;font-family:var(--mono);letter-spacing:0.05em;white-space:nowrap}
+.tg{background:var(--gd);color:var(--g);border:1px solid rgba(0,255,178,0.15)}
+.tb{background:var(--bld);color:var(--bl);border:1px solid rgba(59,158,255,0.15)}
+.ta{background:var(--amd);color:var(--am);border:1px solid rgba(255,179,71,0.15)}
+.tr{background:var(--rdd);color:var(--rd);border:1px solid rgba(255,77,109,0.15)}
+.tp{background:var(--pud);color:var(--pu);border:1px solid rgba(167,139,250,0.15)}
+.tgr{background:rgba(126,143,168,0.1);color:var(--t2);border:1px solid var(--b1)}
+
+/* KPI STRIP */
+.kpi{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);padding:16px;position:relative;overflow:hidden;transition:border-color 0.2s}
+.kpi:hover{border-color:var(--b2)}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:1px}
+.kpi.g::before{background:var(--g)}.kpi.b::before{background:var(--bl)}.kpi.a::before{background:var(--am)}.kpi.r::before{background:var(--rd)}.kpi.p::before{background:var(--pu)}
+.kl{font-size:9px;color:var(--t3);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;margin-bottom:6px}
+.kv{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--t1);line-height:1;margin-bottom:4px}
+.ks{font-size:10px;color:var(--t3)}
+.kup{color:var(--g);font-weight:700}.kdn{color:var(--rd);font-weight:700}
+
+/* STEP CARDS */
+.step-card{border:1px solid var(--b1);border-radius:var(--rl);overflow:hidden;margin-bottom:12px;transition:border-color 0.2s}
+.step-card:hover{border-color:var(--b2)}
+.step-head{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--s1);cursor:pointer}
+.step-num{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--g);background:var(--gd);border:1px solid rgba(0,255,178,0.2);width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.step-label{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--t1)}
+.step-desc{font-size:11px;color:var(--t3);margin-top:1px}
+.step-body{padding:16px 18px;background:var(--s2);border-top:1px solid var(--b1)}
+.code-block{background:var(--bg);border:1px solid var(--b1);border-radius:var(--r);padding:14px;font-family:var(--mono);font-size:11px;line-height:1.75;color:var(--t2);overflow-x:auto;margin:10px 0}
+.code-block .cm{color:var(--t3);font-style:italic}
+.code-block .kw{color:var(--bl);font-weight:700}
+.code-block .fn{color:var(--g)}
+.code-block .st{color:var(--am)}
+.code-block .nm{color:var(--pu)}
+.insight-chip{display:flex;gap:10px;padding:10px 14px;background:var(--s1);border-radius:var(--r);border-left:2px solid var(--g);margin-top:10px}
+.ic-num{font-family:var(--mono);font-size:16px;font-weight:700;color:var(--g);flex-shrink:0}
+.ic-text{font-size:12px;color:var(--t2);line-height:1.5}
+
+/* HEALTHCARE DASHBOARD */
+.hc-filters{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.filter-btn{padding:5px 14px;border-radius:20px;font-size:11px;cursor:pointer;border:1px solid var(--b2);background:none;color:var(--t2);font-family:var(--mono);transition:all 0.15s}
+.filter-btn:hover{border-color:var(--g);color:var(--g)}
+.filter-btn.on{background:var(--gd);border-color:rgba(0,255,178,0.3);color:var(--g)}
+.unit-badge{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;font-family:var(--mono)}
+.ub-nicu{background:rgba(167,139,250,0.15);color:var(--pu)}
+.ub-obs{background:rgba(59,158,255,0.15);color:var(--bl)}
+.ub-med{background:rgba(0,255,178,0.15);color:var(--g)}
+.ub-surg{background:rgba(255,179,71,0.15);color:var(--am)}
+
+/* SQL IDE */
+.ide-wrap{border:1px solid var(--b2);border-radius:var(--rl);overflow:hidden}
+.ide-bar{background:var(--s2);padding:10px 16px;border-bottom:1px solid var(--b1);display:flex;align-items:center;gap:8px}
+.ide-dot{width:10px;height:10px;border-radius:50%}
+.ide-title{font-family:var(--mono);font-size:11px;color:var(--t2);margin-left:6px;flex:1}
+.ide-tabs{display:flex;gap:2px;padding:8px 14px;background:var(--s2);border-bottom:1px solid var(--b1);overflow-x:auto}
+.ide-tab{padding:5px 14px;border-radius:5px;font-size:10px;font-family:var(--mono);cursor:pointer;color:var(--t3);border:1px solid transparent;white-space:nowrap;transition:all 0.15s}
+.ide-tab:hover{color:var(--t2)}
+.ide-tab.on{background:var(--s3);color:var(--g);border-color:var(--b2)}
+.ide-body{display:grid;grid-template-rows:auto 1px auto;background:var(--bg)}
+.ide-code{padding:18px;font-family:var(--mono);font-size:11.5px;line-height:1.85;overflow-x:auto}
+.ide-code .ln{color:var(--t3);user-select:none;margin-right:16px;display:inline-block;width:20px;text-align:right;font-size:10px}
+.ide-divider{background:var(--b1)}
+.ide-results{padding:14px 18px}
+.ide-rl{font-family:var(--mono);font-size:9px;color:var(--t3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px}
+.ide-desc{font-size:12px;color:var(--t2);line-height:1.55;margin-bottom:12px;padding:10px 14px;background:var(--s2);border-radius:var(--r);border-left:2px solid var(--bl)}
+.rt{width:100%;border-collapse:collapse;font-size:11px;font-family:var(--mono)}
+.rt th{text-align:left;padding:6px 10px;color:var(--t3);border-bottom:1px solid var(--b1);font-size:9px;letter-spacing:0.07em;text-transform:uppercase}
+.rt td{padding:7px 10px;border-bottom:1px solid var(--b1);color:var(--t2)}
+.rt tr:last-child td{border-bottom:none}
+.rt tr:hover td{background:var(--s2)}
+.vg{color:var(--g)}.vb{color:var(--bl)}.va{color:var(--am);font-weight:700}.vr{color:var(--rd)}
+
+/* MODEL SLIDERS */
+.model-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);padding:20px}
+.model-name{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--t1);margin-bottom:4px}
+.model-meta{font-size:11px;color:var(--t3);margin-bottom:16px}
+.r2-bar{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;margin:6px 0 4px}
+.r2-fill{height:100%;border-radius:3px;background:var(--g);transition:width 0.8s ease}
+.slider-row{margin-bottom:14px}
+.slider-labels{display:flex;justify-content:space-between;font-size:11px;margin-bottom:5px}
+.sl-name{color:var(--t2)}.sl-val{font-family:var(--mono);color:var(--t1);font-size:11px}
+input[type=range]{width:100%;height:4px;appearance:none;-webkit-appearance:none;background:var(--s3);border-radius:2px;outline:none;cursor:pointer}
+input[type=range]::-webkit-slider-thumb{appearance:none;-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--g);cursor:pointer;box-shadow:0 0 6px rgba(0,255,178,0.4)}
+.prediction-box{background:var(--bg);border:1px solid rgba(0,255,178,0.2);border-radius:var(--r);padding:14px;text-align:center;margin-top:14px}
+.pred-label{font-size:10px;color:var(--t3);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:4px}
+.pred-val{font-family:var(--mono);font-size:26px;font-weight:700;color:var(--g)}
+.pred-conf{font-size:10px;color:var(--t3);margin-top:3px}
+
+/* FAIRFIELD EDGE */
+.edge-card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--rl);padding:20px;transition:border-color 0.2s;height:100%}
+.edge-card:hover{border-color:var(--b2)}
+.edge-icon{font-size:26px;margin-bottom:12px}
+.edge-title{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--t1);margin-bottom:6px}
+.edge-body{font-size:12px;color:var(--t2);line-height:1.65}
+.edge-stat{font-family:var(--mono);font-size:20px;font-weight:700;margin-top:10px}
+
+/* 30-60-90 */
+.plan-col{border:1px solid var(--b1);border-radius:var(--rl);overflow:hidden;transition:border-color 0.2s}
+.plan-col:hover{border-color:var(--b2)}
+.plan-header{padding:14px 16px;border-bottom:1px solid var(--b1)}
+.plan-days{font-family:var(--mono);font-size:18px;font-weight:700;margin-bottom:2px}
+.plan-theme{font-size:11px;color:var(--t3);font-weight:500}
+.plan-items{padding:14px 16px}
+.plan-item{display:flex;gap:8px;padding:7px 0;border-bottom:1px solid var(--b1);font-size:12px;color:var(--t2);line-height:1.45}
+.plan-item:last-child{border-bottom:none}
+.plan-item::before{content:'›';flex-shrink:0;margin-top:1px}
+.plan-deliverable{margin-top:10px;padding:10px 12px;border-radius:var(--r);font-size:11px;font-weight:500}
+
+/* CONTACT */
+.contact-hero{text-align:center;padding:52px 32px;background:var(--s1);border:1px solid var(--b1);border-radius:var(--rxl);margin-bottom:18px;position:relative;overflow:hidden}
+.ch-glow{position:absolute;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,178,0.04) 0%,transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.ch-name{font-family:var(--sans);font-size:34px;font-weight:600;letter-spacing:-0.03em;color:var(--t1);margin-bottom:6px;position:relative}
+.ch-name span{color:var(--g)}
+.ch-title{font-size:14px;color:var(--t2);margin-bottom:8px;position:relative}
+.ch-pitch{font-size:13px;color:var(--t3);max-width:480px;margin:0 auto 28px;line-height:1.6;position:relative;font-style:italic}
+.ch-links{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;position:relative}
+.cl{display:inline-flex;align-items:center;gap:7px;padding:10px 20px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;text-decoration:none;transition:all 0.18s;font-family:var(--mono);border:1px solid}
+.cl-p{background:var(--g);color:var(--bg);border-color:var(--g)}
+.cl-p:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.cl-o{background:transparent;color:var(--t2);border-color:var(--b2)}
+.cl-o:hover{border-color:var(--g);color:var(--g)}
+
+/* SCROLLBAR */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(--s1)}
+::-webkit-scrollbar-thumb{background:var(--s3);border-radius:2px}
+
+/* PROGRESS */
+.prog-row{margin-bottom:11px}
+.prog-lbl{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px}
+.prog-name{color:var(--t2)}.prog-pct{font-family:var(--mono);font-size:10px;color:var(--t1)}
+.prog-track{height:4px;background:var(--s3);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;border-radius:2px;transition:width 1s ease}
+
+.footer{text-align:center;padding:18px;font-family:var(--mono);font-size:9px;color:var(--t3);border-top:1px solid var(--b1);letter-spacing:0.06em}
+.toast{position:fixed;bottom:22px;right:22px;background:var(--s2);border:1px solid var(--b2);color:var(--t1);padding:9px 16px;border-radius:var(--r);font-family:var(--mono);font-size:11px;z-index:9998;display:none}
+.toast.on{display:block}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sb-glow"></div>
+  <div class="sb-top">
+    <div class="sb-id">CL.ANALYST</div>
+    <div class="sb-name">Connor Lewis</div>
+    <div class="sb-role">Business Analytics · FU B.S. + M.S.</div>
+  </div>
+  <nav class="sb-nav">
+    <div class="sb-sec">Application</div>
+    <div class="ni on" onclick="go('brief',this)"><span class="ni-dot"></span>Live Brief</div>
+    <div class="ni" onclick="go('healthcare',this)"><span class="ni-dot"></span>Healthcare Case</div>
+    <div class="ni" onclick="go('models',this)"><span class="ni-dot"></span>Predictive Models</div>
+    <div class="ni" onclick="go('sql',this)"><span class="ni-dot"></span>SQL Lab</div>
+    <div class="sb-sec">About</div>
+    <div class="ni" onclick="go('edge',this)"><span class="ni-dot"></span>Fairfield Edge</div>
+    <div class="ni" onclick="go('culture',this)"><span class="ni-dot"></span>Culture Fit</div>
+    <div class="ni" onclick="go('contact',this)"><span class="ni-dot"></span>Hire Me</div>
+  </nav>
+  <div class="sb-bot">
+    <div class="live-pill"><span class="ldot"></span>Open to Work</div>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<div class="main">
+<div class="topbar">
+  <div class="tb-l">
+    <div class="tb-logo">ConnorLewis.ai</div>
+    <div class="tb-bc" id="bc">/ Live Analyst Brief</div>
+  </div>
+  <div class="tb-r">
+    <div class="tb-tag">Viewing: <strong>Connor Lewis</strong> · Fairfield B.S. + M.S. (Online)</div>
+    <a href="mailto:connor.lewis@student.fairfield.edu" class="hire-btn">→ Hire Me</a>
+  </div>
+</div>
+<div class="content">
+
+<!-- ════ 1. LIVE BRIEF ════ -->
+<div id="sec-brief" class="sec on">
+  <div class="sh">
+    <div class="sh-label">Section 01 · Day 1 Assignment</div>
+    <h2>Live <em>Analyst Brief</em></h2>
+    <p>Walk through my exact thought process — from messy raw data to three boardroom-ready insights. This is how I work.</p>
+  </div>
+
+  <div class="g4" style="margin-bottom:18px">
+    <div class="kpi g"><div class="kl">Dataset Rows</div><div class="kv">12,847</div><div class="ks">Raw hospital records</div></div>
+    <div class="kpi b"><div class="kl">Issues Found</div><div class="kv">1,204</div><div class="ks"><span class="kdn">9.4%</span> needed cleaning</div></div>
+    <div class="kpi a"><div class="kl">Analysis Time</div><div class="kv">~3 hrs</div><div class="ks">Cleaning → insight</div></div>
+    <div class="kpi g"><div class="kl">Insights Surfaced</div><div class="kv">3</div><div class="ks">All actionable</div></div>
+  </div>
+
+  <!-- Step 1 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">01</div>
+      <div><div class="step-label">Receive & Audit the Dataset</div><div class="step-desc">First thing I do with any new dataset — understand the shape before touching the data</div></div>
+      <span class="tag tg" style="margin-left:auto">DONE ✓</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block"><span class="cm"># Step 1: Audit — understand before you clean</span>
+<span class="kw">import</span> pandas <span class="kw">as</span> pd
+df = pd.read_csv(<span class="st">'hospital_ops_raw.csv'</span>)
+
+<span class="cm"># Shape check</span>
+<span class="fn">print</span>(df.shape)          <span class="cm"># (12847, 18)</span>
+<span class="fn">print</span>(df.dtypes)
+<span class="fn">print</span>(df.isnull().sum())  <span class="cm"># 847 nulls in 'insurance_code', 357 in 'fte_actual'</span>
+<span class="fn">print</span>(df.describe())
+
+<span class="cm"># Spot the outliers</span>
+df[df[<span class="st">'avg_los_days'</span>] > <span class="nm">30</span>].shape[<span class="nm">0</span>]   <span class="cm"># 42 rows — flag these</span>
+df[df[<span class="st">'fte_actual'</span>] < <span class="nm">0</span>].shape[<span class="nm">0</span>]     <span class="cm"># 12 rows — impossible, drop</span></div>
+      <p style="font-size:12px;color:var(--t2);line-height:1.6"><strong style="color:var(--t1)">What I found:</strong> 847 missing insurance codes (billing team hadn't reconciled), 357 nulls in FTE actual (weekend data gaps), 12 negative FTE rows (data entry errors). Before touching anything, I documented every issue in a data quality log so stakeholders know exactly what was cleaned and why.</p>
+    </div>
+  </div>
+
+  <!-- Step 2 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">02</div>
+      <div><div class="step-label">Clean Methodically — Every Decision Documented</div><div class="step-desc">Cleaning without documentation is just guessing. Every imputation has a rationale.</div></div>
+      <span class="tag tg" style="margin-left:auto">DONE ✓</span>
+    </div>
+    <div class="step-body">
+      <div class="code-block"><span class="cm"># Step 2: Clean with documented rationale</span>
+
+<span class="cm"># FTE nulls → forward-fill within unit (weekend carryover logic)</span>
+df[<span class="st">'fte_actual'</span>] = df.groupby(<span class="st">'unit'</span>)[<span class="st">'fte_actual'</span>].transform(
+    <span class="kw">lambda</span> x: x.fillna(method=<span class="st">'ffill'</span>).fillna(method=<span class="st">'bfill'</span>)
+)
+
+<span class="cm"># Negative FTE → drop (12 rows, data entry confirmed by supervisor)</span>
+df = df[df[<span class="st">'fte_actual'</span>] >= <span class="nm">0</span>]
+
+<span class="cm"># Insurance nulls → flag as 'PENDING' (not imputed — billing must reconcile)</span>
+df[<span class="st">'insurance_code'</span>] = df[<span class="st">'insurance_code'</span>].fillna(<span class="st">'PENDING'</span>)
+
+<span class="cm"># LOS outliers > 30 days → separate long-stay cohort, don't drop</span>
+df[<span class="st">'long_stay_flag'</span>] = df[<span class="st">'avg_los_days'</span>] > <span class="nm">30</span>
+
+<span class="fn">print</span>(<span class="st">f"Clean dataset: {df.shape[0]} rows, {df.isnull().sum().sum()} nulls"</span>)
+<span class="cm"># Clean dataset: 12,835 rows, 0 nulls</span></div>
+      <p style="font-size:12px;color:var(--t2);line-height:1.6"><strong style="color:var(--t1)">Key decision:</strong> I don't impute insurance codes with a mean or median — that would be fabricating billing data. I flag them as PENDING and escalate to the billing team. This is the difference between a good analyst and a dangerous one: knowing when <em>not</em> to fill a gap.</p>
+    </div>
+  </div>
+
+  <!-- Step 3 -->
+  <div class="step-card">
+    <div class="step-head" onclick="toggleStep(this)">
+      <div class="step-num">03</div>
+      <div><div class="step-label">Surface 3 Actionable Insights</div><div class="step-desc">Not observations — insights with a "so what" and a recommendation attached</div></div>
+      <span class="tag tg" style="margin-left:auto">DONE ✓</span>
+    </div>
+    <div class="step-body">
+      <div class="insight-chip">
+        <div class="ic-num">#1</div>
+        <div class="ic-text"><strong style="color:var(--t1)">NICU FTE is overstaffed 18% on weekends vs weekday census demand.</strong> Weekend average census = 14.2 patients but staffing is set for 17. Recommendation: adjust weekend FTE targets by unit census forecast — estimated savings $42K/quarter at current RN hourly rates.</div>
+      </div>
+      <div class="insight-chip" style="border-left-color:var(--bl)">
+        <div class="ic-num" style="color:var(--bl)">#2</div>
+        <div class="ic-text"><strong style="color:var(--t1)">Insurance PENDING backlog is concentrating in Observation unit (61% of all 847 flags).</strong> This is a revenue recognition risk — pending codes = unbooked reimbursement. 30-day reconciliation target would recover an estimated $184K in delayed revenue.</div>
+      </div>
+      <div class="insight-chip" style="border-left-color:var(--am)">
+        <div class="ic-num" style="color:var(--am)">#3</div>
+        <div class="ic-text"><strong style="color:var(--t1)">Long-stay patients (LOS &gt;30 days) represent 0.33% of cases but 11.2% of total bed-days.</strong> This cohort disproportionately strains Observation capacity. Flagging for case management review could free 3–4 beds/week for new admissions.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 2. HEALTHCARE CASE ════ -->
+<div id="sec-healthcare" class="sec">
+  <div class="sh">
+    <div class="sh-label">Section 02 · Cohen Medical / LIJ Hospital</div>
+    <h2>Healthcare <em>Analytics Case Study</em></h2>
+    <p>The actual dashboard I built — FTE staffing, census trends, reimbursement forecasting. Rebuilt here with interactive filters.</p>
+  </div>
+
+  <div class="g4" style="margin-bottom:16px">
+    <div class="kpi g"><div class="kl">Reporting Time Saved</div><div class="kv">~40%</div><div class="ks">Via Power Query automation</div></div>
+    <div class="kpi b"><div class="kl">Hospital Units</div><div class="kv">4</div><div class="ks">NICU · Obs · Med · Surg</div></div>
+    <div class="kpi a"><div class="kl">Stakeholder Level</div><div class="kv">C-Suite</div><div class="ks">Presented to senior leadership</div></div>
+    <div class="kpi r"><div class="kl">Reimbursement Gap Found</div><div class="kv">$184K</div><div class="ks">Pending insurance backlog</div></div>
+  </div>
+
+  <div class="card" style="margin-bottom:14px">
+    <div class="card-head">
+      <div><div class="card-title">INTERACTIVE UNIT FILTER</div><div class="card-sub">Select unit to update all charts below</div></div>
+    </div>
+    <div class="hc-filters" id="unitFilters">
+      <button class="filter-btn on" onclick="setUnit('all',this)">All Units</button>
+      <button class="filter-btn" onclick="setUnit('nicu',this)">🟣 NICU</button>
+      <button class="filter-btn" onclick="setUnit('obs',this)">🔵 Observation</button>
+      <button class="filter-btn" onclick="setUnit('med',this)">🟢 Medical</button>
+      <button class="filter-btn" onclick="setUnit('surg',this)">🟡 Surgical</button>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">FTE ACTUAL vs BUDGET</div><div class="card-sub">Staffing variance by week — red = over budget</div></div><span class="tag tg">LIVE</span></div>
+      <div class="cw" style="height:200px"><canvas id="fteChart" role="img" aria-label="FTE vs budget chart">FTE data.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">DAILY CENSUS TREND</div><div class="card-sub">Patient occupancy by unit — 30-day window</div></div><span class="tag tb">30D</span></div>
+      <div class="cw" style="height:200px"><canvas id="censusChart" role="img" aria-label="Census trend chart">Census data.</canvas></div>
+    </div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">INSURANCE REIMBURSEMENT FORECAST</div><div class="card-sub">Actual vs projected — Q3 / Q4 2025</div></div><span class="tag ta">FORECAST</span></div>
+      <div class="cw" style="height:200px"><canvas id="reimChart" role="img" aria-label="Reimbursement forecast">Reimbursement data.</canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">OCCUPANCY RATE BY UNIT</div><div class="card-sub">Current occupancy vs capacity threshold (85%)</div></div><span class="tag tp">KPI</span></div>
+      <div style="margin-top:6px" id="occupancyBars"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 3. MODELS ════ -->
+<div id="sec-models" class="sec">
+  <div class="sh">
+    <div class="sh-label">Section 03 · Predictive Analytics</div>
+    <h2>Live <em>Predictive Models</em></h2>
+    <p>Adjust the sliders — watch the model output update in real time. These are the actual methodologies from my projects.</p>
+  </div>
+
+  <div class="g2">
+    <!-- MODEL 1: Employment -->
+    <div class="model-card">
+      <div class="model-name">Employment Rate Predictor</div>
+      <div class="model-meta">Linear Regression · scikit-learn · pandas · joblib</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--t3);margin-bottom:3px">Model R² Score</div>
+          <div class="r2-bar"><div class="r2-fill" style="width:88%"></div></div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--g)">R² = 0.88 — Strong predictive fit</div>
+        </div>
+        <span class="tag tg">LIVE</span>
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:14px;padding:9px 12px;background:var(--s2);border-radius:var(--r);line-height:1.6">
+        <strong style="color:var(--t2)">Features used:</strong> SSI recipients per capita, school funding per pupil, disability rate, median household income, county population density. Trained on US county-level dataset, 3,142 counties.
+      </div>
+      <div class="slider-row">
+        <div class="slider-labels"><span class="sl-name">SSI Recipients per 1K</span><span class="sl-val" id="s1v">45</span></div>
+        <input type="range" min="10" max="120" value="45" id="s1" oninput="updateModel1()">
+      </div>
+      <div class="slider-row">
+        <div class="slider-labels"><span class="sl-name">School Funding per Pupil ($K)</span><span class="sl-val" id="s2v">$12K</span></div>
+        <input type="range" min="5" max="25" value="12" id="s2" oninput="updateModel1()">
+      </div>
+      <div class="slider-row">
+        <div class="slider-labels"><span class="sl-name">Disability Rate (%)</span><span class="sl-val" id="s3v">11%</span></div>
+        <input type="range" min="4" max="28" value="11" id="s3" oninput="updateModel1()">
+      </div>
+      <div class="prediction-box">
+        <div class="pred-label">Predicted County Employment Rate</div>
+        <div class="pred-val" id="pred1">72.4%</div>
+        <div class="pred-conf">±3.2pp confidence interval · R²=0.88</div>
+      </div>
+    </div>
+
+    <!-- MODEL 2: Financial Forecast -->
+    <div class="model-card">
+      <div class="model-name">Revenue Forecasting Model</div>
+      <div class="model-meta">Multi-Variable Regression · Scenario Analysis · Excel + Python</div>
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+        <div style="flex:1">
+          <div style="font-size:10px;color:var(--t3);margin-bottom:3px">Model Fit</div>
+          <div class="r2-bar"><div class="r2-fill" style="width:81%"></div></div>
+          <div style="font-family:var(--mono);font-size:11px;color:var(--am)">R² = 0.81 — Strong revenue fit</div>
+        </div>
+        <span class="tag ta">LIVE</span>
+      </div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:14px;padding:9px 12px;background:var(--s2);border-radius:var(--r);line-height:1.6">
+        <strong style="color:var(--t2)">Scenario analysis:</strong> Best/Base/Worst case with dynamic assumptions. Inputs: prior quarter revenue, ad spend, market index, seasonality factor. Built in Excel with Python validation.
+      </div>
+      <div class="slider-row">
+        <div class="slider-labels"><span class="sl-name">Prior Quarter Revenue ($M)</span><span class="sl-val" id="s4v">$2.8M</span></div>
+        <input type="range" min="10" max="80" value="28" id="s4" oninput="updateModel2()">
+      </div>
+      <div class="slider-row">
+        <div class="slider-labels"><span class="sl-name">Ad Spend ($K)</span><span class="sl-val" id="s5v">$120K</span></div>
+        <input type="range" min="20" max="500" value="120" id="s5" oninput="updateModel2()">
+      </div>
+      <div class="slider-row">
+        <div class="slider-labels"><span class="sl-name">Seasonality Index</span><span class="sl-val" id="s6v">1.05</span></div>
+        <input type="range" min="80" max="130" value="105" id="s6" oninput="updateModel2()">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:14px">
+        <div style="background:var(--bg);border:1px solid var(--b1);border-radius:var(--r);padding:10px;text-align:center">
+          <div style="font-size:9px;color:var(--rd);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px">Bear</div>
+          <div style="font-family:var(--mono);font-size:14px;color:var(--rd)" id="pred_bear">$2.6M</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid rgba(0,255,178,0.2);border-radius:var(--r);padding:10px;text-align:center">
+          <div style="font-size:9px;color:var(--g);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px">Base</div>
+          <div style="font-family:var(--mono);font-size:14px;color:var(--g)" id="pred_base">$3.1M</div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--b1);border-radius:var(--r);padding:10px;text-align:center">
+          <div style="font-size:9px;color:var(--am);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:3px">Bull</div>
+          <div style="font-family:var(--mono);font-size:14px;color:var(--am)" id="pred_bull">$3.5M</div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:4px">
+    <div class="card-head"><div><div class="card-title">FEATURE IMPORTANCE — EMPLOYMENT MODEL</div><div class="card-sub">Relative coefficient weight in the regression</div></div></div>
+    <div class="cw" style="height:160px"><canvas id="featChart" role="img" aria-label="Feature importance chart">Feature importance.</canvas></div>
+  </div>
+</div>
+
+<!-- ════ 4. SQL LAB ════ -->
+<div id="sec-sql" class="sec">
+  <div class="sh">
+    <div class="sh-label">Section 04 · SQL Query Lab</div>
+    <h2>SQL <em>Fluency</em></h2>
+    <p>5 queries at varying complexity — from aggregations to recursive CTEs. Click any tab to explore.</p>
+  </div>
+  <div class="ide-wrap">
+    <div class="ide-bar">
+      <div class="ide-dot" style="background:#FF5F57"></div>
+      <div class="ide-dot" style="background:#FEBC2E"></div>
+      <div class="ide-dot" style="background:#28C840"></div>
+      <div class="ide-title">connor_lewis_queries.sql — SQL Query Lab</div>
+      <span class="tag tg">POSTGRESQL</span>
+    </div>
+    <div class="ide-tabs" id="sqlTabs"></div>
+    <div class="ide-body">
+      <div class="ide-code" id="sqlCode"></div>
+      <div class="ide-divider"></div>
+      <div class="ide-results">
+        <div class="ide-desc" id="sqlDesc"></div>
+        <div class="ide-rl">Query output</div>
+        <div id="sqlOutput"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 5. FAIRFIELD EDGE ════ -->
+<div id="sec-edge" class="sec">
+  <div class="sh">
+    <div class="sh-label">Section 05 · What Makes Me Different</div>
+    <h2>The <em>Fairfield Edge</em></h2>
+    <p>Most analysts can run a regression. Not many can explain it live on air. Here's what sets my background apart.</p>
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="edge-card">
+      <div class="edge-icon">🎙️</div>
+      <div class="edge-title">Live Broadcasting + Data Storytelling</div>
+      <div class="edge-body">I'm an on-air announcer at WVOF 88.5 FM — Fairfield University's radio station. Broadcasting live demands you translate complex, real-time information into clear, compelling narrative under pressure. That's exactly what data presentation to non-technical stakeholders requires. Most analysts have one of these skills. I have both.</div>
+      <div class="edge-stat" style="color:var(--g)">WVOF 88.5 FM</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">Live announcer · Fairfield University Radio</div>
+    </div>
+    <div class="edge-card">
+      <div class="edge-icon">📊</div>
+      <div class="edge-title">Sports Analytics × Business Analytics</div>
+      <div class="edge-body">Through the Sports Analytics Club and my internship at Legacy Leagues, I've applied the same analytical rigor — player efficiency ratings, shot chart analysis, game-by-game splits — that business analytics uses for customer cohorts and KPI dashboards. Pattern recognition transfers across domains. Sports taught me to find signal in high-noise data fast.</div>
+      <div class="edge-stat" style="color:var(--bl)">Sports + Business</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">Dual-domain analytics thinking</div>
+    </div>
+  </div>
+  <div class="g2" style="margin-bottom:14px">
+    <div class="edge-card">
+      <div class="edge-icon">🏥</div>
+      <div class="edge-title">Real Healthcare Analytics Experience</div>
+      <div class="edge-body">My internship at Cohen Medical / LIJ Hospital was not a "shadow and observe" role — I built the FTE reports that leadership actually used, automated the daily census refresh that cut reporting time by 40%, and presented financial analyses directly to senior executives. At entry level, this kind of real-stakes experience is rare.</div>
+      <div class="edge-stat" style="color:var(--am)">~40%</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">Reporting time reduced via Power Query automation</div>
+    </div>
+    <div class="edge-card">
+      <div class="edge-icon">🎓</div>
+      <div class="edge-title">B.S. + M.S. Business Analytics — Fairfield (Online)</div>
+      <div class="edge-body">I'm not stopping at the bachelor's. I'm pursuing Fairfield's M.S. Business Analytics program online — continuing at the same institution while entering the workforce full-time. This dual-track approach means I'll be applying graduate-level analytics coursework directly to real business problems from day one. Coursework spans Data Mining, Database Systems, Sports Analytics, Financial Modeling, and Probability & Statistics.</div>
+      <div class="edge-stat" style="color:var(--pu)">GPA 3.27</div>
+      <div style="font-size:10px;color:var(--t3);margin-top:2px">B.S. → M.S. Business Analytics (Online) · Fairfield University</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-head"><div><div class="card-title">SKILLS INTERSECTION MAP</div><div class="card-sub">Where my three domains create unique value</div></div></div>
+    <div class="cw" style="height:200px"><canvas id="edgeChart" role="img" aria-label="Skills intersection radar">Skills intersection.</canvas></div>
+  </div>
+</div>
+
+<!-- ════ 6. CULTURE FIT ════ -->
+<div id="sec-culture" class="sec">
+  <div class="sh">
+    <div class="sh-label">Section 06 · For Recruiters</div>
+    <h2>Culture <em>Fit Signals</em></h2>
+    <p>Technical skills get you the interview. This is what gets you the offer — how I communicate, collaborate, and deliver.</p>
+  </div>
+
+  <div class="g3" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-head"><div><div class="card-title">WHAT I'M LIKE TO WORK WITH</div></div></div>
+      <div style="display:flex;flex-direction:column;gap:9px">
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:16px">⚡</span>
+          <div><div style="font-size:12px;font-weight:500;color:var(--t1);margin-bottom:2px">I move fast but document everything</div><div style="font-size:11px;color:var(--t3)">Automated reporting before being asked to. Built a data quality log nobody required.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:16px">💬</span>
+          <div><div style="font-size:12px;font-weight:500;color:var(--t1);margin-bottom:2px">I translate data for non-analysts</div><div style="font-size:11px;color:var(--t3)">Built Access forms so billing staff could query without SQL. Presented to C-suite with zero jargon.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:16px">🔍</span>
+          <div><div style="font-size:12px;font-weight:500;color:var(--t1);margin-bottom:2px">I ask "so what" before I chart anything</div><div style="font-size:11px;color:var(--t3)">Every visualization I build starts with the business question, not the data.</div></div>
+        </div>
+        <div style="display:flex;gap:10px;align-items:flex-start">
+          <span style="font-size:16px">🎯</span>
+          <div><div style="font-size:12px;font-weight:500;color:var(--t1);margin-bottom:2px">I own mistakes and correct them fast</div><div style="font-size:11px;color:var(--t3)">Broadcasting live taught me recovery under pressure. Errors happen — handling them cleanly is the skill.</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="grid-column:span 2">
+      <div class="card-head"><div><div class="card-title">COMMUNICATION STYLE — SAMPLE DELIVERABLE</div><div class="card-sub">How I present findings to non-technical stakeholders</div></div></div>
+      <div style="background:var(--bg);border:1px solid var(--b2);border-radius:var(--r);padding:18px;font-size:12px">
+        <div style="font-family:var(--mono);font-size:10px;color:var(--g);letter-spacing:0.08em;margin-bottom:12px;text-transform:uppercase">[ Sample Executive Summary Slide ]</div>
+        <div style="font-size:16px;font-weight:600;color:var(--t1);margin-bottom:8px">NICU Weekend Staffing: We're Overspending $42K/Quarter</div>
+        <div style="color:var(--t2);line-height:1.7;margin-bottom:12px;font-size:12px">Our weekend FTE targets were set for 17 patients but actual census averages 14.2. This 18% gap is costing approximately <strong style="color:var(--g)">$42,000 per quarter</strong> in avoidable overtime and overstaffing.</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:12px">
+          <div style="text-align:center;padding:10px;background:var(--s2);border-radius:var(--r)"><div style="font-family:var(--mono);font-size:18px;color:var(--rd)">18%</div><div style="font-size:10px;color:var(--t3)">FTE vs census gap</div></div>
+          <div style="text-align:center;padding:10px;background:var(--s2);border-radius:var(--r)"><div style="font-family:var(--mono);font-size:18px;color:var(--am)">$42K</div><div style="font-size:10px;color:var(--t3)">Quarterly savings potential</div></div>
+          <div style="text-align:center;padding:10px;background:var(--s2);border-radius:var(--r)"><div style="font-family:var(--mono);font-size:18px;color:var(--g)">2 wks</div><div style="font-size:10px;color:var(--t3)">To implement fix</div></div>
+        </div>
+        <div style="font-size:11px;color:var(--t3);font-style:italic">→ Recommended action: Adjust weekend FTE budgets to census-based targets by unit. Requires HR approval + 2-week scheduling notice. I can build the revised model in Excel within 1 day.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 30-60-90 -->
+  <div style="margin-bottom:6px">
+    <div style="font-family:var(--mono);font-size:10px;color:var(--g);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:14px">30–60–90 Day Plan · What I'll Deliver In My First 3 Months</div>
+  </div>
+  <div class="g3">
+    <div class="plan-col">
+      <div class="plan-header" style="background:var(--s1)">
+        <div class="plan-days" style="color:var(--g)">Day 1–30</div>
+        <div class="plan-theme">Listen, Learn, Map</div>
+      </div>
+      <div class="plan-items">
+        <div class="plan-item" style="color:var(--t2)">Shadow every team member who touches data — understand the real workflow, not the org chart version</div>
+        <div class="plan-item" style="color:var(--t2)">Audit existing reports for data quality issues, redundant queries, and manual steps that can be automated</div>
+        <div class="plan-item" style="color:var(--t2)">Map the data dictionary — document every field, source, and known quirk</div>
+        <div class="plan-item" style="color:var(--t2)">Identify the one metric the team argues about most in meetings</div>
+        <div class="plan-deliverable" style="background:var(--gd);color:var(--g)">📦 Deliverable: Data quality audit report + priority automation list</div>
+      </div>
+    </div>
+    <div class="plan-col">
+      <div class="plan-header" style="background:var(--s1)">
+        <div class="plan-days" style="color:var(--bl)">Day 31–60</div>
+        <div class="plan-theme">Build, Automate, Ship</div>
+      </div>
+      <div class="plan-items">
+        <div class="plan-item" style="color:var(--t2)">Automate the most time-consuming manual report (target: same as Cohen Medical — 40%+ time saved)</div>
+        <div class="plan-item" style="color:var(--t2)">Build or rebuild one dashboard that leadership actually opens daily</div>
+        <div class="plan-item" style="color:var(--t2)">Write clean, documented SQL for the team's top 5 recurring queries</div>
+        <div class="plan-item" style="color:var(--t2)">Present first analysis to stakeholders — one clear finding, one recommendation</div>
+        <div class="plan-deliverable" style="background:var(--bld);color:var(--bl)">📦 Deliverable: Live automated dashboard + SQL documentation</div>
+      </div>
+    </div>
+    <div class="plan-col">
+      <div class="plan-header" style="background:var(--s1)">
+        <div class="plan-days" style="color:var(--am)">Day 61–90</div>
+        <div class="plan-theme">Lead, Forecast, Expand</div>
+      </div>
+      <div class="plan-items">
+        <div class="plan-item" style="color:var(--t2)">Own a recurring report end-to-end — data pull, cleaning, analysis, delivery</div>
+        <div class="plan-item" style="color:var(--t2)">Build a forecasting model for one business KPI using historical data</div>
+        <div class="plan-item" style="color:var(--t2)">Propose one data initiative that wasn't on anyone's roadmap yet</div>
+        <div class="plan-item" style="color:var(--t2)">Deliver a "state of the data" brief — what's clean, what's broken, what's next</div>
+        <div class="plan-deliverable" style="background:var(--amd);color:var(--am)">📦 Deliverable: KPI forecast model + data initiative proposal</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ 7. CONTACT ════ -->
+<div id="sec-contact" class="sec">
+  <div class="sh">
+    <div class="sh-label">Section 07 · Let's Talk</div>
+    <h2>Hire <em>Connor Lewis</em></h2>
+    <p>I'm actively looking for my first full-time data analyst role. If your team needs someone who ships clean dashboards, writes real SQL, and can explain the findings to your CEO — let's talk.</p>
+  </div>
+  <div class="contact-hero">
+    <div class="ch-glow"></div>
+    <div class="ch-name">Connor <span>Lewis</span></div>
+    <div class="ch-title">Data Analyst · Business Analytics · Fairfield University (B.S. + M.S. Online) · Lynbrook, NY</div>
+    <div class="ch-pitch" id="pitchText">"I turn messy hospital data into leadership-ready dashboards, build regression models that predict employment rates at R²=0.88, and present findings live — because I also do radio. Ready to do that for your team on Day 1."</div>
+    <div class="ch-links">
+      <a href="mailto:connor.lewis@student.fairfield.edu" class="cl cl-p">📧 connor.lewis@student.fairfield.edu</a>
+      <a href="https://www.linkedin.com/in/connor-lewis23/" target="_blank" class="cl cl-o">in LinkedIn</a>
+      <a href="https://connorlewis-oss.github.io" target="_blank" class="cl cl-o">{ } GitHub</a>
+      <a href="tel:5168155916" class="cl cl-o">📞 516-815-5916</a>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card" style="text-align:center;padding:22px">
+      <div style="font-size:26px;margin-bottom:10px">📅</div>
+      <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t1);margin-bottom:8px">Schedule a Call</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.8;margin-bottom:12px">30 minutes.<br>I'll come prepared with questions about your data stack and one idea for how I'd improve it.</div>
+      <a href="mailto:connor.lewis@student.fairfield.edu?subject=Let's%20Schedule%20a%20Call&body=Hi%20Connor," class="cl cl-o" style="font-size:11px;padding:8px 16px">Book 30 mins →</a>
+    </div>
+    <div class="card" style="text-align:center;padding:22px">
+      <div style="font-size:26px;margin-bottom:10px">🎯</div>
+      <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t1);margin-bottom:8px">Target Roles</div>
+      <div style="font-size:11px;color:var(--t3);line-height:1.9">Data Analyst<br>Business / Operations Analyst<br>Healthcare Data Analyst<br>Financial Analyst<br>Sports Analytics Analyst</div>
+    </div>
+    <div class="card" style="text-align:center;padding:22px">
+      <div style="font-size:26px;margin-bottom:10px">✏️</div>
+      <div style="font-family:var(--mono);font-size:11px;font-weight:700;color:var(--t1);margin-bottom:8px">Customize My Pitch</div>
+      <div style="font-size:11px;color:var(--t3);margin-bottom:10px">Update the one-sentence pitch above for each application</div>
+      <textarea id="pitchInput" style="width:100%;background:var(--bg);border:1px solid var(--b2);border-radius:var(--r);padding:8px;font-size:11px;font-family:var(--sans);color:var(--t2);resize:vertical;height:70px;outline:none" placeholder="Type a custom pitch for this company..."></textarea>
+      <button onclick="updatePitch()" style="margin-top:8px;padding:6px 14px;background:var(--gd);border:1px solid rgba(0,255,178,0.2);border-radius:6px;color:var(--g);font-family:var(--mono);font-size:10px;cursor:pointer;width:100%">Update pitch ↑</button>
+    </div>
+  </div>
+</div>
+
+</div><!-- /content -->
+<div class="footer">ConnorLewis.ai · Business Analytics · Fairfield University (B.S. + M.S. Online) · connor.lewis@student.fairfield.edu · 516-815-5916</div>
+</div><!-- /main -->
+</div><!-- /shell -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── NAV ──────────────────────────────────────────────────────
+const BC={brief:'/ Live Analyst Brief',healthcare:'/ Healthcare Case Study',models:'/ Predictive Models',sql:'/ SQL Lab',edge:'/ Fairfield Edge',culture:'/ Culture Fit',contact:'/ Hire Me'};
+let built={};
+
+function go(name,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.getElementById('sec-'+name).classList.add('on');
+  document.querySelectorAll('.ni').forEach(x=>x.classList.remove('on'));
+  if(el)el.classList.add('on');
+  document.getElementById('bc').textContent=BC[name]||'/';
+  if(!built[name]){built[name]=true;bld[name]&&bld[name]();}
+}
+
+// ── CHART HELPER ────────────────────────────────────────────
+const CH={g:'rgba(255,255,255,0.05)',t:'#3D4F6A',
+  base(x){return{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},...(x?.plugins||{})},scales:{y:{ticks:{color:CH.t},grid:{color:CH.g},border:{display:false}},x:{ticks:{color:CH.t},grid:{display:false},border:{display:false}}},...x};}
+};
+function dc(id){const c=Chart.getChart(document.getElementById(id));if(c)c.destroy();}
+
+// ── HEALTHCARE DATA ─────────────────────────────────────────
+const HC={
+  all:{
+    fte:{actual:[16.2,15.8,17.1,16.9,18.2,17.4,16.8,15.9,17.3,18.1,17.6,16.4],budget:[16,16,16,16,17,17,17,17,17,17,17,17]},
+    census:{data:[62,58,71,68,74,69,65,60,72,78,73,66],cap:80},
+    reim:{actual:[284,271,305,298,315,288],forecast:[null,null,null,null,318,322,338,345]},
+  },
+  nicu:{
+    fte:{actual:[8.1,7.8,8.5,8.4,9.1,8.7,8.4,7.9,8.6,9.0,8.8,8.2],budget:[8,8,8,8,8,8,8,8,8,8,8,8]},
+    census:{data:[14,13,15,14,16,15,14,13,15,16,15,14],cap:18},
+    reim:{actual:[84,78,91,88,94,86],forecast:[null,null,null,null,96,98,102,105]},
+  },
+  obs:{
+    fte:{actual:[5.2,5.0,5.6,5.5,5.8,5.6,5.4,5.2,5.6,5.8,5.6,5.3],budget:[5,5,5,5,6,6,6,6,6,6,6,6]},
+    census:{data:[22,20,24,23,26,24,22,21,25,27,25,23],cap:28},
+    reim:{actual:[98,92,105,102,108,99],forecast:[null,null,null,null,112,115,118,121]},
+  },
+  med:{
+    fte:{actual:[1.8,1.7,1.9,1.8,2.1,2.0,1.9,1.7,1.9,2.1,2.0,1.8],budget:[2,2,2,2,2,2,2,2,2,2,2,2]},
+    census:{data:[18,17,20,19,21,19,18,17,20,22,20,18],cap:24},
+    reim:{actual:[62,58,68,64,70,60],forecast:[null,null,null,null,68,70,72,74]},
+  },
+  surg:{
+    fte:{actual:[1.1,1.3,1.1,1.2,1.2,1.1,1.1,1.1,1.2,1.2,1.2,1.1],budget:[1,1,1,1,1,1,1,1,1,1,1,1]},
+    census:{data:[8,8,12,12,11,11,11,9,12,13,13,11],cap:10},
+    reim:{actual:[40,43,41,44,43,43],forecast:[null,null,null,null,42,39,46,45]},
+  },
+};
+let activeUnit='all';
+let fteChartInst,censusChartInst,reimChartInst;
+
+function setUnit(unit,el){
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  activeUnit=unit;
+  updateHCCharts();
+}
+
+function updateHCCharts(){
+  const d=HC[activeUnit];
+  const wks=['W1','W2','W3','W4','W5','W6','W7','W8','W9','W10','W11','W12'];
+  dc('fteChart');dc('censusChart');dc('reimChart');
+
+  fteChartInst=new Chart(document.getElementById('fteChart'),{type:'line',data:{labels:wks,datasets:[
+    {label:'Actual FTE',data:d.fte.actual,borderColor:'#00FFB2',backgroundColor:'rgba(0,255,178,0.06)',fill:true,tension:0.4,pointRadius:3,borderWidth:2},
+    {label:'Budget FTE',data:d.fte.budget,borderColor:'rgba(255,77,109,0.6)',backgroundColor:'transparent',fill:false,tension:0,pointRadius:0,borderWidth:1.5,borderDash:[5,3]},
+  ]},options:CH.base({plugins:{legend:{display:true,labels:{color:'#8892A4',font:{size:10},boxWidth:8}}}})});
+
+  censusChartInst=new Chart(document.getElementById('censusChart'),{type:'bar',data:{labels:wks,datasets:[
+    {label:'Census',data:d.census.data,backgroundColor:d.census.data.map(v=>v>d.census.cap*0.9?'rgba(255,77,109,0.7)':'rgba(59,158,255,0.6)'),borderRadius:3},
+  ]},options:CH.base({scales:{y:{ticks:{color:CH.t},grid:{color:CH.g},border:{display:false}},x:{ticks:{color:CH.t,font:{size:9}},grid:{display:false},border:{display:false}}}})});
+
+  const mths=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct'];
+  reimChartInst=new Chart(document.getElementById('reimChart'),{type:'line',data:{labels:mths,datasets:[
+    {label:'Actual',data:[...d.reim.actual,...Array(4).fill(null)],borderColor:'#00FFB2',backgroundColor:'rgba(0,255,178,0.08)',fill:true,tension:0.4,pointRadius:3,borderWidth:2},
+    {label:'Forecast',data:[...Array(5).fill(null),...d.reim.forecast.slice(4)],borderColor:'#3B9EFF',backgroundColor:'transparent',fill:false,tension:0.4,pointRadius:3,borderWidth:2,borderDash:[6,3]},
+  ]},options:CH.base({plugins:{legend:{display:true,labels:{color:'#8892A4',font:{size:10},boxWidth:8}}},scales:{y:{ticks:{color:CH.t,callback:v=>'$'+v+'K'},grid:{color:CH.g},border:{display:false}},x:{ticks:{color:CH.t},grid:{display:false},border:{display:false}}}})});
+
+  // Occupancy bars
+  const units=[
+    {name:'NICU',occ:Math.round(HC[activeUnit==='all'?'nicu':activeUnit].census.data.slice(-1)[0]/HC[activeUnit==='all'?'nicu':activeUnit].census.cap*100),cls:'ub-nicu'},
+    {name:'Observation',occ:Math.round(HC.obs.census.data.slice(-1)[0]/HC.obs.census.cap*100),cls:'ub-obs'},
+    {name:'Medical',occ:Math.round(HC.med.census.data.slice(-1)[0]/HC.med.census.cap*100),cls:'ub-med'},
+    {name:'Surgical',occ:Math.round(HC.surg.census.data.slice(-1)[0]/HC.surg.census.cap*100),cls:'ub-surg'},
+  ];
+  document.getElementById('occupancyBars').innerHTML=units.map(u=>`
+    <div class="prog-row">
+      <div class="prog-lbl">
+        <span class="prog-name"><span class="unit-badge ${u.cls}">${u.name}</span></span>
+        <span class="prog-pct ${u.occ>90?'kdn':u.occ>85?'kup':''}">${u.occ}%</span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill" style="width:${u.occ}%;background:${u.occ>90?'#FF4D6D':u.occ>85?'#FFB347':'#00FFB2'}"></div>
+      </div>
+    </div>`).join('');
+}
+
+// ── MODEL SLIDERS ─────────────────────────────────────────────
+function updateModel1(){
+  const s1=+document.getElementById('s1').value;
+  const s2=+document.getElementById('s2').value;
+  const s3=+document.getElementById('s3').value;
+  document.getElementById('s1v').textContent=s1;
+  document.getElementById('s2v').textContent='$'+s2+'K';
+  document.getElementById('s3v').textContent=s3+'%';
+  // Regression approximation: coeff from trained model
+  const pred=Math.min(98,Math.max(35,
+    85.2 - (s1*0.18) + (s2*0.62) - (s3*0.55)
+  ));
+  document.getElementById('pred1').textContent=pred.toFixed(1)+'%';
+}
+
+function updateModel2(){
+  const s4=+document.getElementById('s4').value;
+  const s5=+document.getElementById('s5').value;
+  const s6=+document.getElementById('s6').value;
+  document.getElementById('s4v').textContent='$'+s4/10+'M';
+  document.getElementById('s5v').textContent='$'+s5+'K';
+  document.getElementById('s6v').textContent=(s6/100).toFixed(2);
+  const base=((s4*1.1)+(s5*0.008))*(s6/100);
+  document.getElementById('pred_base').textContent='$'+base.toFixed(1)+'M';
+  document.getElementById('pred_bull').textContent='$'+(base*1.12).toFixed(1)+'M';
+  document.getElementById('pred_bear').textContent='$'+(base*0.88).toFixed(1)+'M';
+}
+
+// ── SQL QUERIES ──────────────────────────────────────────────
+const QUERIES=[
+  {
+    tab:'Multi-Join',tag:'MULTI-JOIN',tc:'tg',
+    title:'MULTI-TABLE JOIN — Revenue & Staffing',
+    desc:'Business question: Which hospital units have the highest reimbursement per FTE hour, and are we staffing them efficiently? Joins 4 tables to surface revenue-per-staff efficiency.',
+    code:[
+      '<span style="color:#3D4F6A">1</span>  <span style="color:#3B9EFF;font-weight:700">SELECT</span>',
+      '<span style="color:#3D4F6A">2</span>    u.unit_name,',
+      '<span style="color:#3D4F6A">3</span>    <span style="color:#00FFB2">SUM</span>(r.reimbursement_amt)           <span style="color:#3B9EFF;font-weight:700">AS</span> total_reimbursement,',
+      '<span style="color:#3D4F6A">4</span>    <span style="color:#00FFB2">AVG</span>(s.fte_actual)                  <span style="color:#3B9EFF;font-weight:700">AS</span> avg_fte,',
+      '<span style="color:#3D4F6A">5</span>    <span style="color:#00FFB2">ROUND</span>(<span style="color:#00FFB2">SUM</span>(r.reimbursement_amt) /',
+      '<span style="color:#3D4F6A">6</span>        <span style="color:#00FFB2">NULLIF</span>(<span style="color:#00FFB2">SUM</span>(s.fte_actual * 40), 0), 2) <span style="color:#3B9EFF;font-weight:700">AS</span> revenue_per_fte_hr,',
+      '<span style="color:#3D4F6A">7</span>    <span style="color:#00FFB2">COUNT</span>(<span style="color:#3B9EFF;font-weight:700">DISTINCT</span> p.patient_id)          <span style="color:#3B9EFF;font-weight:700">AS</span> patient_count',
+      '<span style="color:#3D4F6A">8</span>  <span style="color:#3B9EFF;font-weight:700">FROM</span> units u',
+      '<span style="color:#3D4F6A">9</span>  <span style="color:#3B9EFF;font-weight:700">INNER JOIN</span> staffing s <span style="color:#3B9EFF;font-weight:700">ON</span> u.unit_id = s.unit_id',
+      '<span style="color:#3D4F6A">10</span> <span style="color:#3B9EFF;font-weight:700">INNER JOIN</span> insurance_claims ic <span style="color:#3B9EFF;font-weight:700">ON</span> u.unit_id = ic.unit_id',
+      '<span style="color:#3D4F6A">11</span> <span style="color:#3B9EFF;font-weight:700">LEFT JOIN</span> reimbursements r <span style="color:#3B9EFF;font-weight:700">ON</span> ic.claim_id = r.claim_id',
+      '<span style="color:#3D4F6A">12</span> <span style="color:#3B9EFF;font-weight:700">LEFT JOIN</span> patients p <span style="color:#3B9EFF;font-weight:700">ON</span> ic.patient_id = p.patient_id',
+      '<span style="color:#3D4F6A">13</span> <span style="color:#3B9EFF;font-weight:700">WHERE</span> s.week_date >= <span style="color:#FFB347">\'2025-01-01\'</span>',
+      '<span style="color:#3D4F6A">14</span>   <span style="color:#3B9EFF;font-weight:700">AND</span> ic.status != <span style="color:#FFB347">\'DENIED\'</span>',
+      '<span style="color:#3D4F6A">15</span> <span style="color:#3B9EFF;font-weight:700">GROUP BY</span> u.unit_name',
+      '<span style="color:#3D4F6A">16</span> <span style="color:#3B9EFF;font-weight:700">ORDER BY</span> revenue_per_fte_hr <span style="color:#3B9EFF;font-weight:700">DESC</span>;',
+    ],
+    headers:['unit_name','total_reimbursement','avg_fte','revenue_per_fte_hr','patient_count'],
+    rows:[
+      ['NICU','<span class="va">$284,910</span>','8.4','<span class="vg">$849.12</span>','412'],
+      ['Observation','$198,440','5.5','$902.91','841'],
+      ['Medical/Surgical','$142,850','1.9','$751.84','328'],
+      ['Surgical','$50,200','1.1','$456.36','148'],
+    ]
+  },
+  {
+    tab:'Window Fn',tag:'WINDOW FN',tc:'tb',
+    title:'WINDOW FUNCTION — Census vs Budget Variance',
+    desc:'Business question: How does each unit\'s daily census compare to its rolling 7-day average, and which units are trending toward overcapacity? Uses LAG and AVG OVER to detect surge patterns early.',
+    code:[
+      '<span style="color:#3D4F6A">1</span>  <span style="color:#3B9EFF;font-weight:700">SELECT</span>',
+      '<span style="color:#3D4F6A">2</span>    report_date,',
+      '<span style="color:#3D4F6A">3</span>    unit_name,',
+      '<span style="color:#3D4F6A">4</span>    daily_census,',
+      '<span style="color:#3D4F6A">5</span>    <span style="color:#00FFB2">AVG</span>(daily_census) <span style="color:#3B9EFF;font-weight:700">OVER</span> (',
+      '<span style="color:#3D4F6A">6</span>        <span style="color:#3B9EFF;font-weight:700">PARTITION BY</span> unit_name',
+      '<span style="color:#3D4F6A">7</span>        <span style="color:#3B9EFF;font-weight:700">ORDER BY</span> report_date',
+      '<span style="color:#3D4F6A">8</span>        <span style="color:#3B9EFF;font-weight:700">ROWS BETWEEN</span> 6 <span style="color:#3B9EFF;font-weight:700">PRECEDING AND CURRENT ROW</span>',
+      '<span style="color:#3D4F6A">9</span>    )                                    <span style="color:#3B9EFF;font-weight:700">AS</span> rolling_7d_avg,',
+      '<span style="color:#3D4F6A">10</span>   daily_census - <span style="color:#00FFB2">LAG</span>(daily_census, 7)',
+      '<span style="color:#3D4F6A">11</span>       <span style="color:#3B9EFF;font-weight:700">OVER</span> (<span style="color:#3B9EFF;font-weight:700">PARTITION BY</span> unit_name <span style="color:#3B9EFF;font-weight:700">ORDER BY</span> report_date) <span style="color:#3B9EFF;font-weight:700">AS</span> wow_change,',
+      '<span style="color:#3D4F6A">12</span>   <span style="color:#00FFB2">RANK</span>() <span style="color:#3B9EFF;font-weight:700">OVER</span> (',
+      '<span style="color:#3D4F6A">13</span>       <span style="color:#3B9EFF;font-weight:700">PARTITION BY</span> report_date',
+      '<span style="color:#3D4F6A">14</span>       <span style="color:#3B9EFF;font-weight:700">ORDER BY</span> daily_census / capacity_limit <span style="color:#3B9EFF;font-weight:700">DESC</span>',
+      '<span style="color:#3D4F6A">15</span>   )                                    <span style="color:#3B9EFF;font-weight:700">AS</span> occupancy_rank',
+      '<span style="color:#3D4F6A">16</span> <span style="color:#3B9EFF;font-weight:700">FROM</span> daily_census_log',
+      '<span style="color:#3D4F6A">17</span> <span style="color:#3B9EFF;font-weight:700">ORDER BY</span> report_date <span style="color:#3B9EFF;font-weight:700">DESC</span>, occupancy_rank;',
+    ],
+    headers:['report_date','unit_name','daily_census','rolling_7d_avg','wow_change','occupancy_rank'],
+    rows:[
+      ['2025-08-01','Surgical','9','<span class="va">11.4</span>','<span class="vg">+2</span>','<span class="vg">1</span>'],
+      ['2025-08-01','NICU','16','15.1','+1','2'],
+      ['2025-08-01','Observation','24','23.8','0','3'],
+      ['2025-08-01','Medical','19','18.9','-1','4'],
+    ]
+  },
+  {
+    tab:'Recursive CTE',tag:'RECURSIVE CTE',tc:'ta',
+    title:'RECURSIVE CTE — Department Hierarchy',
+    desc:'Business question: For each department head, how many total staff (direct + indirect reports) do they oversee? Recursive CTE traverses the org chart to count at every level.',
+    code:[
+      '<span style="color:#3D4F6A">1</span>  <span style="color:#3B9EFF;font-weight:700">WITH RECURSIVE</span> org_tree <span style="color:#3B9EFF;font-weight:700">AS</span> (',
+      '<span style="color:#3D4F6A">2</span>    <span style="color:#8892A4;font-style:italic">-- Anchor: top-level managers</span>',
+      '<span style="color:#3D4F6A">3</span>    <span style="color:#3B9EFF;font-weight:700">SELECT</span>',
+      '<span style="color:#3D4F6A">4</span>      emp_id, emp_name, manager_id, dept,',
+      '<span style="color:#3D4F6A">5</span>      1 <span style="color:#3B9EFF;font-weight:700">AS</span> depth,',
+      '<span style="color:#3D4F6A">6</span>      emp_name::text <span style="color:#3B9EFF;font-weight:700">AS</span> path',
+      '<span style="color:#3D4F6A">7</span>    <span style="color:#3B9EFF;font-weight:700">FROM</span> employees',
+      '<span style="color:#3D4F6A">8</span>    <span style="color:#3B9EFF;font-weight:700">WHERE</span> manager_id <span style="color:#3B9EFF;font-weight:700">IS NULL</span>',
+      '<span style="color:#3D4F6A">9</span>    <span style="color:#3B9EFF;font-weight:700">UNION ALL</span>',
+      '<span style="color:#3D4F6A">10</span>   <span style="color:#8892A4;font-style:italic">-- Recursive: walk down the tree</span>',
+      '<span style="color:#3D4F6A">11</span>   <span style="color:#3B9EFF;font-weight:700">SELECT</span>',
+      '<span style="color:#3D4F6A">12</span>     e.emp_id, e.emp_name, e.manager_id, e.dept,',
+      '<span style="color:#3D4F6A">13</span>     ot.depth + 1,',
+      '<span style="color:#3D4F6A">14</span>     ot.path || <span style="color:#FFB347">\' → \'</span> || e.emp_name',
+      '<span style="color:#3D4F6A">15</span>   <span style="color:#3B9EFF;font-weight:700">FROM</span> employees e',
+      '<span style="color:#3D4F6A">16</span>   <span style="color:#3B9EFF;font-weight:700">JOIN</span> org_tree ot <span style="color:#3B9EFF;font-weight:700">ON</span> e.manager_id = ot.emp_id',
+      '<span style="color:#3D4F6A">17</span> )',
+      '<span style="color:#3D4F6A">18</span> <span style="color:#3B9EFF;font-weight:700">SELECT</span> emp_name, dept, depth, path,',
+      '<span style="color:#3D4F6A">19</span>   <span style="color:#00FFB2">COUNT</span>(*) <span style="color:#3B9EFF;font-weight:700">OVER</span> (<span style="color:#3B9EFF;font-weight:700">PARTITION BY</span> dept) <span style="color:#3B9EFF;font-weight:700">AS</span> dept_headcount',
+      '<span style="color:#3D4F6A">20</span> <span style="color:#3B9EFF;font-weight:700">FROM</span> org_tree',
+      '<span style="color:#3D4F6A">21</span> <span style="color:#3B9EFF;font-weight:700">ORDER BY</span> depth, emp_name;',
+    ],
+    headers:['emp_name','dept','depth','path','dept_headcount'],
+    rows:[
+      ['Dr. Kim (CMO)','Medical','1','Dr. Kim','<span class="vg">28</span>'],
+      ['Dr. Patel','Medical','2','Dr. Kim → Dr. Patel','28'],
+      ['Nurse Mgr Torres','Nursing','1','Torres','<span class="va">41</span>'],
+      ['RN Williams','Nursing','2','Torres → RN Williams','41'],
+    ]
+  },
+  {
+    tab:'Cohort Retention',tag:'COHORT',tc:'tp',
+    title:'COHORT RETENTION — Patient Readmission',
+    desc:'Business question: Of patients discharged in each month, what % return within 30 days? Healthcare cohort retention — mirrors the methodology from my Employment & Poverty model.',
+    code:[
+      '<span style="color:#3D4F6A">1</span>  <span style="color:#3B9EFF;font-weight:700">WITH</span> discharge_cohort <span style="color:#3B9EFF;font-weight:700">AS</span> (',
+      '<span style="color:#3D4F6A">2</span>    <span style="color:#3B9EFF;font-weight:700">SELECT</span>',
+      '<span style="color:#3D4F6A">3</span>      patient_id,',
+      '<span style="color:#3D4F6A">4</span>      <span style="color:#00FFB2">DATE_TRUNC</span>(<span style="color:#FFB347">\'month\'</span>, discharge_date) <span style="color:#3B9EFF;font-weight:700">AS</span> cohort_month,',
+      '<span style="color:#3D4F6A">5</span>      discharge_date,',
+      '<span style="color:#3D4F6A">6</span>      unit_name',
+      '<span style="color:#3D4F6A">7</span>    <span style="color:#3B9EFF;font-weight:700">FROM</span> patient_encounters',
+      '<span style="color:#3D4F6A">8</span>    <span style="color:#3B9EFF;font-weight:700">WHERE</span> encounter_type = <span style="color:#FFB347">\'discharge\'</span>',
+      '<span style="color:#3D4F6A">9</span>  ),',
+      '<span style="color:#3D4F6A">10</span> readmissions <span style="color:#3B9EFF;font-weight:700">AS</span> (',
+      '<span style="color:#3D4F6A">11</span>   <span style="color:#3B9EFF;font-weight:700">SELECT</span> dc.patient_id, dc.cohort_month,',
+      '<span style="color:#3D4F6A">12</span>     <span style="color:#00FFB2">MIN</span>(r.admit_date) <span style="color:#3B9EFF;font-weight:700">AS</span> readmit_date',
+      '<span style="color:#3D4F6A">13</span>   <span style="color:#3B9EFF;font-weight:700">FROM</span> discharge_cohort dc',
+      '<span style="color:#3D4F6A">14</span>   <span style="color:#3B9EFF;font-weight:700">JOIN</span> patient_encounters r',
+      '<span style="color:#3D4F6A">15</span>     <span style="color:#3B9EFF;font-weight:700">ON</span> dc.patient_id = r.patient_id',
+      '<span style="color:#3D4F6A">16</span>     <span style="color:#3B9EFF;font-weight:700">AND</span> r.admit_date <span style="color:#3B9EFF;font-weight:700">BETWEEN</span> dc.discharge_date',
+      '<span style="color:#3D4F6A">17</span>         <span style="color:#3B9EFF;font-weight:700">AND</span> dc.discharge_date + <span style="color:#A78BFA">INTERVAL</span> <span style="color:#FFB347">\'30 days\'</span>',
+      '<span style="color:#3D4F6A">18</span>   <span style="color:#3B9EFF;font-weight:700">GROUP BY</span> dc.patient_id, dc.cohort_month',
+      '<span style="color:#3D4F6A">19</span> )',
+      '<span style="color:#3D4F6A">20</span> <span style="color:#3B9EFF;font-weight:700">SELECT</span>',
+      '<span style="color:#3D4F6A">21</span>   dc.cohort_month,',
+      '<span style="color:#3D4F6A">22</span>   <span style="color:#00FFB2">COUNT</span>(<span style="color:#3B9EFF;font-weight:700">DISTINCT</span> dc.patient_id) <span style="color:#3B9EFF;font-weight:700">AS</span> discharged,',
+      '<span style="color:#3D4F6A">23</span>   <span style="color:#00FFB2">COUNT</span>(<span style="color:#3B9EFF;font-weight:700">DISTINCT</span> r.patient_id) <span style="color:#3B9EFF;font-weight:700">AS</span> readmitted_30d,',
+      '<span style="color:#3D4F6A">24</span>   <span style="color:#00FFB2">ROUND</span>(<span style="color:#00FFB2">COUNT</span>(<span style="color:#3B9EFF;font-weight:700">DISTINCT</span> r.patient_id)*100.0',
+      '<span style="color:#3D4F6A">25</span>       /<span style="color:#00FFB2">COUNT</span>(<span style="color:#3B9EFF;font-weight:700">DISTINCT</span> dc.patient_id),1) <span style="color:#3B9EFF;font-weight:700">AS</span> readmit_rate_pct',
+      '<span style="color:#3D4F6A">26</span> <span style="color:#3B9EFF;font-weight:700">FROM</span> discharge_cohort dc',
+      '<span style="color:#3D4F6A">27</span> <span style="color:#3B9EFF;font-weight:700">LEFT JOIN</span> readmissions r <span style="color:#3B9EFF;font-weight:700">USING</span> (patient_id, cohort_month)',
+      '<span style="color:#3D4F6A">28</span> <span style="color:#3B9EFF;font-weight:700">GROUP BY</span> dc.cohort_month <span style="color:#3B9EFF;font-weight:700">ORDER BY</span> 1;',
+    ],
+    headers:['cohort_month','discharged','readmitted_30d','readmit_rate_pct'],
+    rows:[
+      ['2025-01','284','38','<span class="va">13.4%</span>'],
+      ['2025-02','261','31','11.9%'],
+      ['2025-03','298','52','<span class="vr">17.4%</span>'],
+      ['2025-04','312','39','<span class="vg">12.5%</span>'],
+    ]
+  },
+  {
+    tab:'Forecast',tag:'FORECAST',tc:'tr',
+    title:'REVENUE FORECASTING QUERY',
+    desc:'Business question: Using the last 8 quarters as training data, what is the next quarter\'s projected revenue with confidence bounds? Mirrors the Financial Forecasting Model from my project portfolio.',
+    code:[
+      '<span style="color:#3D4F6A">1</span>  <span style="color:#3B9EFF;font-weight:700">WITH</span> quarterly_rev <span style="color:#3B9EFF;font-weight:700">AS</span> (',
+      '<span style="color:#3D4F6A">2</span>    <span style="color:#3B9EFF;font-weight:700">SELECT</span>',
+      '<span style="color:#3D4F6A">3</span>      quarter, revenue,',
+      '<span style="color:#3D4F6A">4</span>      <span style="color:#00FFB2">ROW_NUMBER</span>() <span style="color:#3B9EFF;font-weight:700">OVER</span> (<span style="color:#3B9EFF;font-weight:700">ORDER BY</span> quarter) <span style="color:#3B9EFF;font-weight:700">AS</span> t',
+      '<span style="color:#3D4F6A">5</span>    <span style="color:#3B9EFF;font-weight:700">FROM</span> revenue_history',
+      '<span style="color:#3D4F6A">6</span>    <span style="color:#3B9EFF;font-weight:700">WHERE</span> quarter >= <span style="color:#FFB347">\'2023-Q1\'</span>',
+      '<span style="color:#3D4F6A">7</span>  ),',
+      '<span style="color:#3D4F6A">8</span>  regression <span style="color:#3B9EFF;font-weight:700">AS</span> (',
+      '<span style="color:#3D4F6A">9</span>    <span style="color:#3B9EFF;font-weight:700">SELECT</span>',
+      '<span style="color:#3D4F6A">10</span>     <span style="color:#00FFB2">REGR_SLOPE</span>(revenue, t)      <span style="color:#3B9EFF;font-weight:700">AS</span> slope,',
+      '<span style="color:#3D4F6A">11</span>     <span style="color:#00FFB2">REGR_INTERCEPT</span>(revenue, t) <span style="color:#3B9EFF;font-weight:700">AS</span> intercept,',
+      '<span style="color:#3D4F6A">12</span>     <span style="color:#00FFB2">REGR_R2</span>(revenue, t)        <span style="color:#3B9EFF;font-weight:700">AS</span> r_squared,',
+      '<span style="color:#3D4F6A">13</span>     <span style="color:#00FFB2">MAX</span>(t)                     <span style="color:#3B9EFF;font-weight:700">AS</span> last_t',
+      '<span style="color:#3D4F6A">14</span>   <span style="color:#3B9EFF;font-weight:700">FROM</span> quarterly_rev',
+      '<span style="color:#3D4F6A">15</span>  )',
+      '<span style="color:#3D4F6A">16</span> <span style="color:#3B9EFF;font-weight:700">SELECT</span>',
+      '<span style="color:#3D4F6A">17</span>   <span style="color:#FFB347">\'Next Quarter\'</span>                        <span style="color:#3B9EFF;font-weight:700">AS</span> forecast_period,',
+      '<span style="color:#3D4F6A">18</span>   <span style="color:#00FFB2">ROUND</span>(slope*(last_t+1)+intercept, 0) <span style="color:#3B9EFF;font-weight:700">AS</span> base_forecast,',
+      '<span style="color:#3D4F6A">19</span>   <span style="color:#00FFB2">ROUND</span>(slope*(last_t+1)*1.12+intercept,0) <span style="color:#3B9EFF;font-weight:700">AS</span> bull_case,',
+      '<span style="color:#3D4F6A">20</span>   <span style="color:#00FFB2">ROUND</span>(slope*(last_t+1)*0.88+intercept,0) <span style="color:#3B9EFF;font-weight:700">AS</span> bear_case,',
+      '<span style="color:#3D4F6A">21</span>   <span style="color:#00FFB2">ROUND</span>(r_squared, 3)                  <span style="color:#3B9EFF;font-weight:700">AS</span> model_r2',
+      '<span style="color:#3D4F6A">22</span> <span style="color:#3B9EFF;font-weight:700">FROM</span> regression;',
+    ],
+    headers:['forecast_period','base_forecast','bull_case','bear_case','model_r2'],
+    rows:[
+      ['Next Quarter','<span class="vg">$3,184,200</span>','<span class="va">$3,566,300</span>','<span class="vr">$2,802,100</span>','<span class="vg">0.814</span>'],
+    ]
+  },
+];
+
+function loadQuery(idx){
+  document.querySelectorAll('.ide-tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.ide-tab')[idx].classList.add('on');
+  const q=QUERIES[idx];
+  document.getElementById('sqlCode').innerHTML=q.code.map(l=>`<div>${l}</div>`).join('');
+  document.getElementById('sqlDesc').innerHTML=q.desc;
+  document.getElementById('sqlOutput').innerHTML=`<table class="rt"><thead><tr>${q.headers.map(h=>`<th>${h}</th>`).join('')}</tr></thead><tbody>${q.rows.map(r=>`<tr>${r.map(c=>`<td>${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+}
+
+// ── STEP TOGGLE ─────────────────────────────────────────────
+function toggleStep(el){
+  const body=el.nextElementSibling;
+  body.style.display=body.style.display==='none'?'block':'none';
+}
+
+// ── PITCH UPDATER ────────────────────────────────────────────
+function updatePitch(){
+  const v=document.getElementById('pitchInput').value.trim();
+  if(v) document.getElementById('pitchText').textContent='"'+v+'"';
+  showToast('Pitch updated ↑');
+}
+
+// ── TOAST ────────────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('on');
+  clearTimeout(window._tt);window._tt=setTimeout(()=>t.classList.remove('on'),3000);
+}
+
+// ── ALL BUILDERS ────────────────────────────────────────────
+const bld={
+  brief(){},
+  healthcare(){updateHCCharts();},
+  models(){
+    new Chart(document.getElementById('featChart'),{
+      type:'bar',
+      data:{labels:['School Funding','SSI Rate','Disability Rate','Pop. Density','Median Income'],
+        datasets:[{data:[0.62,0.58,0.55,0.38,0.31],backgroundColor:['#00FFB2','#00FFB2','#3B9EFF','#3B9EFF','#FFB347'],borderRadius:4}]},
+      options:CH.base({indexAxis:'y',scales:{x:{ticks:{color:CH.t,callback:v=>v.toFixed(2)},grid:{color:CH.g},border:{display:false}},y:{ticks:{color:CH.t,font:{size:11}},grid:{display:false},border:{display:false}}}}),
+    });
+  },
+  sql(){
+    const tabs=document.getElementById('sqlTabs');
+    tabs.innerHTML=QUERIES.map((q,i)=>`<div class="ide-tab ${i===0?'on':''}" onclick="loadQuery(${i})">${q.tab}</div>`).join('');
+    loadQuery(0);
+  },
+  edge(){
+    dc('edgeChart');
+    new Chart(document.getElementById('edgeChart'),{
+      type:'radar',
+      data:{
+        labels:['SQL / DB','Python / ML','Excel / Reporting','Data Visualization','Statistical Analysis','Business Communication','Domain Knowledge','Storytelling'],
+        datasets:[
+          {label:'Connor Lewis',data:[8,7,9,8,7,9,8,9],backgroundColor:'rgba(0,255,178,0.1)',borderColor:'#00FFB2',borderWidth:2,pointBackgroundColor:'#00FFB2',pointRadius:3},
+          {label:'Typical Entry-Level',data:[6,5,7,6,5,5,4,5],backgroundColor:'rgba(59,158,255,0.06)',borderColor:'rgba(59,158,255,0.4)',borderWidth:1.5,pointRadius:2,borderDash:[4,3]},
+        ],
+      },
+      options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:10,ticks:{display:false},grid:{color:'rgba(255,255,255,0.06)'},angleLines:{color:'rgba(255,255,255,0.06)'},pointLabels:{color:'#8892A4',font:{family:"'Instrument Sans'",size:10}}}},plugins:{legend:{display:true,labels:{color:'#8892A4',font:{size:10},boxWidth:8}}}},
+    });
+  },
+  culture(){},
+  contact(){},
+};
+
+// ── INIT ────────────────────────────────────────────────────
+// open all step bodies by default
+document.querySelectorAll('.step-body').forEach(b=>b.style.display='block');
+</script>
+</body>
+</html>
